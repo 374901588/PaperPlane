@@ -1,0 +1,63 @@
+提取三个Fragment的公共的基类
+
+当View被销毁时，Presenter中更新View时许需要判断
+Presenter与View的生命周期问题
+
+英文状态下的资源文件也需要修改
+
+shortcuts文件的作用
+
+xliff?
+
+实现拼音也能匹配???  //TODO
+
+PreferenceActivityCompat不能有Toolbar等，所以在Activity里面用PreferenceFragmentCompat?
+
+解决切换主题总是直接显示MainFragment的问题
+04-16 17:01:23.729 23142-23142/com.hut.zero E/AndroidRuntime: FATAL EXCEPTION: main
+                                                              Process: com.hut.zero, PID: 23142
+                                                              java.lang.RuntimeException: Unable to start activity ComponentInfo{com.hut.zero/com.hut.zero.homepage.MainActivity}: java.lang.NullPointerException: Attempt to read from field 'android.support.v7.widget.RecyclerView com.hut.zero.databinding.FragmentListBinding.recyclerView' on a null object reference
+                                                                  at android.app.ActivityThread.performLaunchActivity(ActivityThread.java:2302)
+                                                                  at android.app.ActivityThread.handleLaunchActivity(ActivityThread.java:2375)
+                                                                  at android.app.ActivityThread.handleRelaunchActivity(ActivityThread.java:3927)
+                                                                  at android.app.ActivityThread.access$900(ActivityThread.java:148)
+                                                                  at android.app.ActivityThread$H.handleMessage(ActivityThread.java:1288)
+                                                                  at android.os.Handler.dispatchMessage(Handler.java:102)
+                                                                  at android.os.Looper.loop(Looper.java:135)
+                                                                  at android.app.ActivityThread.main(ActivityThread.java:5240)
+                                                                  at java.lang.reflect.Method.invoke(Native Method)
+                                                                  at java.lang.reflect.Method.invoke(Method.java:372)
+                                                                  at com.android.internal.os.ZygoteInit$MethodAndArgsCaller.run(ZygoteInit.java:950)
+                                                                  at com.android.internal.os.ZygoteInit.main(ZygoteInit.java:745)
+                                                                  at de.robv.android.xposed.XposedBridge.main(XposedBridge.java:102)
+                                                               Caused by: java.lang.NullPointerException: Attempt to read from field 'android.support.v7.widget.RecyclerView com.hut.zero.databinding.FragmentListBinding.recyclerView' on a null object reference
+                                                                  at com.hut.zero.bookmarks.BookmarksFragment.showResults(BookmarksFragment.java:133)
+                                                                  at com.hut.zero.bookmarks.BookmarksPresenter.loadResults(BookmarksPresenter.java:93)
+                                                                  at com.hut.zero.bookmarks.BookmarksFragment.notifyDataChanged(BookmarksFragment.java:140)
+                                                                  at com.hut.zero.homepage.MainActivity.showBookmarksFragment(MainActivity.java:140)
+                                                                  at com.hut.zero.homepage.MainActivity.onCreate(MainActivity.java:90)
+                                                                  at android.app.Activity.performCreate(Activity.java:6008)
+                                                                  at android.app.Instrumentation.callActivityOnCreate(Instrumentation.java:1105)
+                                                                  at android.app.ActivityThread.performLaunchActivity(ActivityThread.java:2255)
+                                                                  at android.app.ActivityThread.handleLaunchActivity(ActivityThread.java:2375)?
+                                                                  at android.app.ActivityThread.handleRelaunchActivity(ActivityThread.java:3927)?
+                                                                  at android.app.ActivityThread.access$900(ActivityThread.java:148)?
+                                                                  at android.app.ActivityThread$H.handleMessage(ActivityThread.java:1288)?
+                                                                  at android.os.Handler.dispatchMessage(Handler.java:102)?
+                                                                  at android.os.Looper.loop(Looper.java:135)?
+                                                                  at android.app.ActivityThread.main(ActivityThread.java:5240)?
+                                                                  at java.lang.reflect.Method.invoke(Native Method)?
+                                                                  at java.lang.reflect.Method.invoke(Method.java:372)?
+                                                                  at com.android.internal.os.ZygoteInit$MethodAndArgsCaller.run(ZygoteInit.java:950)?
+                                                                  at com.android.internal.os.ZygoteInit.main(ZygoteInit.java:745)?
+                                                                  at de.robv.android.xposed.XposedBridge.main(XposedBridge.java:102)?
+
+
+将Adapter的ViewHolder提取出来，去除重复代码
+
+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+1、<activity android:configChanges="orientation|keyboardHidden|screenSize|screenLayout"/>
+
+2、关于、设置界面的实现 PreferenceFragmentCompat与PreferenceActivityCompat
+
+3、现在展示详细内容时对WebView的使用，已经该界面中BottomSheet中的各种操作

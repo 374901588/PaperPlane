@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="utf-8"?>
+<litepal>
+    <dbname value="History.db"/>
+
+    <version value="1"/>
+
+    <list>
+        <mapping class="com.hut.zero.bean.ZhihuCache"/>
+        <mapping class="com.hut.zero.bean.GuokeCache"/>
+        <mapping class="com.hut.zero.bean.DoubanCache"/>
+    </list>
+</litepal>
