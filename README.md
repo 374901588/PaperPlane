@@ -4,7 +4,7 @@
 
 ----------
 
-（本项目仅供交流学习使用，不得用于商业用途，转载请声明原作者出处（https://github.com/TonnyL/PaperPlane）与本项目出处（https://github.com/374901588/PaperPlane））
+（本项目仅供交流学习使用，不得用于商业用途，转载请声明原作者出处（https://github.com/TonnyL/PaperPlane） 与本项目出处（https://github.com/374901588/PaperPlane））
 
 ----------
 
