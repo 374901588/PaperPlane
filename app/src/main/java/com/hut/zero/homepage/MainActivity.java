@@ -15,17 +15,16 @@ import android.support.v4.widget.DrawerLayout;
 import android.support.v7.app.ActionBarDrawerToggle;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.app.AppCompatDelegate;
-import android.util.Log;
 import android.view.MenuItem;
 import android.view.View;
 
 import com.hut.zero.R;
-import com.hut.zero.other_pages.AboutPreferenceActivity;
 import com.hut.zero.bookmarks.BookmarksFragment;
 import com.hut.zero.bookmarks.BookmarksPresenter;
 import com.hut.zero.databinding.ActivityMain2Binding;
-import com.hut.zero.service.CacheService;
+import com.hut.zero.other_pages.AboutPreferenceActivity;
 import com.hut.zero.other_pages.SettingsPreferenceActivity;
+import com.hut.zero.service.CacheService;
 
 public class MainActivity extends AppCompatActivity implements NavigationView.OnNavigationItemSelectedListener {
 

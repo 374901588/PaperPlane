@@ -31,7 +31,6 @@ import android.support.design.widget.Snackbar;
 import android.support.v4.content.ContextCompat;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.preference.PreferenceFragmentCompat;
-import android.support.v7.widget.Toolbar;
 
 import com.hut.zero.R;
 import com.hut.zero.customtabs.CustomFallback;
@@ -42,9 +41,6 @@ import com.hut.zero.customtabs.CustomTabActivityHelper;
  */
 
 public class AboutPreferenceFragment extends PreferenceFragmentCompat {
-
-    private Toolbar toolbar;
-
     private SharedPreferences sp;
 
     private CustomTabsIntent.Builder customTabsIntent;
@@ -147,7 +143,6 @@ public class AboutPreferenceFragment extends PreferenceFragmentCompat {
     // setting display home as up enable can not work either
     // so work it in activity directly
     public void init() {
-        toolbar = (Toolbar) getActivity().findViewById(R.id.toolbar);
         sp = getPreferenceManager().getSharedPreferences();
         customTabsIntent = new CustomTabsIntent.Builder();
         customTabsIntent.setToolbarColor(ContextCompat.getColor(getContext(), R.color.colorPrimary));
@@ -156,7 +151,7 @@ public class AboutPreferenceFragment extends PreferenceFragmentCompat {
 
 
     public void showBrowserNotFoundError() {
-        Snackbar.make(toolbar, R.string.no_browser_found, Snackbar.LENGTH_SHORT).show();
+        Snackbar.make(getActivity().findViewById(R.id.toolbar), R.string.no_browser_found, Snackbar.LENGTH_SHORT).show();
     }
 
 }

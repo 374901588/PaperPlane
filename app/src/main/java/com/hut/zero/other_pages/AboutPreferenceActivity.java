@@ -30,17 +30,6 @@ public class AboutPreferenceActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_about);
 
-        initViews();
-
-        AboutPreferenceFragment fragment = new AboutPreferenceFragment();
-
-        getSupportFragmentManager()
-                .beginTransaction()
-                .add(R.id.about_container, fragment)
-                .commit();
-    }
-
-    private void initViews() {
         setSupportActionBar((Toolbar) findViewById(R.id.toolbar));
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
     }

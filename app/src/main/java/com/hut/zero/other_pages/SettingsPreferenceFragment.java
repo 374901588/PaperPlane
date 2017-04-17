@@ -6,7 +6,6 @@ import android.os.Handler;
 import android.support.design.widget.Snackbar;
 import android.support.v7.preference.Preference;
 import android.support.v7.preference.PreferenceFragmentCompat;
-import android.support.v7.widget.Toolbar;
 
 import com.bumptech.glide.Glide;
 import com.hut.zero.R;
@@ -16,8 +15,6 @@ import com.hut.zero.R;
  */
 
 public class SettingsPreferenceFragment extends PreferenceFragmentCompat {
-
-    private Toolbar toolbar;
 
     private SharedPreferences sp;
 
@@ -30,8 +27,6 @@ public class SettingsPreferenceFragment extends PreferenceFragmentCompat {
         //通过PreferenceFragmentCompat或者PreferenceActivityCompat设置的参数，会自动在/data/data/<packagename>/shared_prefs/目录生成一个默认文件
         //通过getPreferenceManager().getSharedPreferences()得到相应的SharedPreferences引用
         sp = getPreferenceManager().getSharedPreferences();
-
-        initViews();
 
         findPreference("clear_glide_cache").setOnPreferenceClickListener(preference -> {
             new Thread(() -> {
@@ -50,18 +45,8 @@ public class SettingsPreferenceFragment extends PreferenceFragmentCompat {
         });
     }
 
-    public void initViews() {
-        toolbar = (Toolbar) getActivity().findViewById(R.id.toolbar);
-    }
-
     public void showCleanGlideCacheDone() {
-        Snackbar.make(toolbar, R.string.clear_image_cache_successfully, Snackbar.LENGTH_SHORT).show();
-    }
-
-    public SettingsPreferenceFragment() {}
-
-    public static SettingsPreferenceFragment newInstance() {
-        return new SettingsPreferenceFragment();
+        Snackbar.make(getActivity().findViewById(R.id.toolbar), R.string.clear_image_cache_successfully, Snackbar.LENGTH_SHORT).show();
     }
 
     public String getTimeSummary() {

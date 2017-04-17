@@ -1,17 +1,11 @@
-提取三个Fragment的公共的基类
-
 当View被销毁时，Presenter中更新View时许需要判断
 Presenter与View的生命周期问题
-
-英文状态下的资源文件也需要修改
 
 shortcuts文件的作用
 
 xliff?
 
 实现拼音也能匹配???  //TODO
-
-PreferenceActivityCompat不能有Toolbar等，所以在Activity里面用PreferenceFragmentCompat?
 
 解决切换主题总是直接显示MainFragment的问题
 04-16 17:01:23.729 23142-23142/com.hut.zero E/AndroidRuntime: FATAL EXCEPTION: main
@@ -60,4 +54,4 @@ PreferenceActivityCompat不能有Toolbar等，所以在Activity里面用PreferenceFragmentC
 
 2、关于、设置界面的实现 PreferenceFragmentCompat与PreferenceActivityCompat
 
-3、现在展示详细内容时对WebView的使用，已经该界面中BottomSheet中的各种操作
+3、现在展示详细内容时对WebView的使用，已及该界面中BottomSheet中的各种操作

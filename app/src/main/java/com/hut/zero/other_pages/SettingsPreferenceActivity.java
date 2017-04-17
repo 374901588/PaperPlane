@@ -33,17 +33,13 @@ public class SettingsPreferenceActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_settings);
 
-        initViews();
-
-        getSupportFragmentManager()
-                .beginTransaction()
-                .replace(R.id.settings_container, SettingsPreferenceFragment.newInstance())
-                .commit();
-    }
-
-    private void initViews() {
         setSupportActionBar((Toolbar) findViewById(R.id.toolbar));
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
+
+//        getSupportFragmentManager()
+//                .beginTransaction()
+//                .replace(R.id.settings_container, SettingsPreferenceFragment.newInstance())
+//                .commit();
     }
 
     @Override
