@@ -5,10 +5,12 @@
 以下只是对本人所仿照开发的纸飞机APP进行知识点的整理，以及原项目大体实现思路的整理。
 
 ----------
+
 ###1、原项目大体实现思路：
 **首先是从网络上请求新闻的列表，请求成功后，会开启后台服务去请求新闻对应的详细内容，同时缓存到本地。**
 
 ----------
+
 ###2、仿照纸飞机知识点整理：
 
 ***（与原项目相同的地方）***
@@ -28,6 +30,7 @@
  12. 使用Data Binding简化逻辑
 
 ----------
+
 ###3、在原项目基础的改动&改善
 
  1. 对于显示新闻列表的Adapter进行了处理，将里面设计的各种ViewHolder单独提取了出来，减少了重复代码的出现
@@ -43,5 +46,8 @@
  6. 修复了在进入应用时没有缓存有本地数据且没有网络的情况下（如第一次进入应用且没有网络）出现奔溃的情况。
 
 ```
-原因出在DoubanMomentFragment第一次进入时因为没网DoubanMomentFragment会弹出一个SnackBar，（该SnackBar是相对于RefreshLayout显示的），但是在fragment_liset布局中缺少父布局CoordinatorLayout，而SnackBar所依赖的view又要在以CoordinatorLayout作为直接父布局，所以会导致异常：java.lang.IllegalArgumentException: No suitable parent found from the given view. Please provide a valid view.从而奔溃。
+原因出在DoubanMomentFragment第一次进入时因为没网DoubanMomentFragment会弹出一个SnackBar，（该SnackBar是相对于RefreshLayout显示的），
+但是在fragment_liset布局中缺少父布局CoordinatorLayout，而SnackBar所依赖的view又要在以CoordinatorLayout作为直接父布局，
+所以会导致异常：java.lang.IllegalArgumentException: No suitable parent found from the given view. Please provide a valid view.
+从而奔溃。
 ```
