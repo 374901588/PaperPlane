@@ -17,12 +17,16 @@
 
 <layout xmlns:android="http://schemas.android.com/apk/res/android">
 
-    <android.support.v4.widget.SwipeRefreshLayout
+    <android.support.design.widget.CoordinatorLayout
         android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:id="@+id/refreshLayout">
+        android:layout_height="match_parent">
 
-        <!--<FrameLayout-->
+        <android.support.v4.widget.SwipeRefreshLayout
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:id="@+id/refreshLayout">
+
+            <!--<FrameLayout-->
             <!--android:layout_width="match_parent"-->
             <!--android:layout_height="wrap_content"-->
             <!--android:focusable="true"-->
@@ -35,8 +39,10 @@
                 android:scrollbars="vertical"
                 android:scrollbarFadeDuration="1"
                 android:fadeScrollbars="true" />
-        <!--</FrameLayout>-->
+            <!--</FrameLayout>-->
 
-    </android.support.v4.widget.SwipeRefreshLayout>
+        </android.support.v4.widget.SwipeRefreshLayout>
+    </android.support.design.widget.CoordinatorLayout>
+
 </layout>
 

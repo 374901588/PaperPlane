@@ -309,7 +309,7 @@ public class DetailPresenter implements DetailContract.Presenter {
         }
     }
 
-    //改善了原有逻辑，如果本地有缓存了详细内容，则先从本地获取，减少网络的请求
+    //改善了原有逻辑，如果本地有缓存了详细内容，则先从本地获取，如果没有，再通过网路获取且同时保存到本地
     @Override
     public void requestData() {
         if (id == 0 || type == null) {
@@ -349,7 +349,14 @@ public class DetailPresenter implements DetailContract.Presenter {
                                     if (zhihuDailyStory.getBody() == null) {
                                         view.showResultWithoutBody(zhihuDailyStory.getShare_url());
                                     } else {
-                                        view.showResult(convertZhihuContent(response.body().getBody()));
+                                        String result = response.body().getBody();
+
+                                        //通过网络获取后同时保存到本地
+                                        ContentValues values = new ContentValues();
+                                        values.put("zhihu_content",result);
+                                        DataSupport.updateAll(ZhihuCache.class, values, "zhihu_id = ?", ""+id);
+
+                                        view.showResult(result);
                                     }
                                     view.stopLoading();
                                 }
@@ -377,7 +384,7 @@ public class DetailPresenter implements DetailContract.Presenter {
                 String content2 = cache2.getGuoke_content();
                 if (!TextUtils.isEmpty(content2)) {
                     Log.d("测试","TYPE_ZHIHU==>从本地获取");
-                    convertGuokeContent(content2);
+                    convertGuokeContent(content2);//在该方法中会给guokeStory赋值
                     view.showResult(guokeStory);
                     view.stopLoading();
                 } else {
@@ -388,7 +395,14 @@ public class DetailPresenter implements DetailContract.Presenter {
                                 @Override
                                 public void onResponse(Call<ResponseBody> call, Response<ResponseBody> response) {
                                     try {
-                                        convertGuokeContent(response.body().string());//该方法会为guokrStory赋值
+                                        String result = response.body().string();
+
+                                        //通过网络获取后同时保存到本地
+                                        ContentValues values = new ContentValues();
+                                        values.put("guoke_content",result);
+                                        DataSupport.updateAll(GuokeCache.class, values, "guoke_id = ?", ""+id);
+
+                                        convertGuokeContent(result);//该方法会为guokrStory赋值
                                     } catch (IOException e) {
                                         e.printStackTrace();
                                     }
@@ -425,7 +439,6 @@ public class DetailPresenter implements DetailContract.Presenter {
                 } else {
                     if (NetworkState.networkConnected(context)) {
                         Log.d("测试","TYPE_ZHIHU==>从网络获取");
-                        try {
                             new DoubanModelImpl().loadArticleDetail("" + id, new Callback<DoubanMomentStory>() {
                                 @Override
                                 public void onResponse(Call<DoubanMomentStory> call, Response<DoubanMomentStory> response) {
@@ -440,11 +453,32 @@ public class DetailPresenter implements DetailContract.Presenter {
                                     view.stopLoading();
                                 }
                             });
-                        } catch (JsonSyntaxException e) {
-                            view.showLoadingError();
-                            view.stopLoading();
-                            e.printStackTrace();
-                        }
+
+                            new DoubanModelImpl().loadArticleDetailForResponeBody("" + id, new Callback<ResponseBody>() {
+                                @Override
+                                public void onResponse(Call<ResponseBody> call, Response<ResponseBody> response) {
+                                    try {
+                                        String result = response.body().string();
+
+                                        //通过网络获取后同时保存到本地
+                                        ContentValues values = new ContentValues();
+                                        values.put("douban_content",result);
+                                        DataSupport.updateAll(DoubanCache.class, values, "douban_id = ?", ""+id);
+
+                                        doubanMomentStory = gson.fromJson(result, DoubanMomentStory.class);
+                                        view.showResult(convertDoubanContent());
+                                        view.stopLoading();
+                                    } catch (IOException e) {
+                                        view.showLoadingError();
+                                        view.stopLoading();
+                                    }
+                                }
+
+                                @Override
+                                public void onFailure(Call<ResponseBody> call, Throwable t) {
+
+                                }
+                            });
                     } else {
                         view.showLoadingError();
                         view.stopLoading();
