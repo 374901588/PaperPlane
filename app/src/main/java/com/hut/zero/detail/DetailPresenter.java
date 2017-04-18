@@ -352,12 +352,12 @@ public class DetailPresenter implements DetailContract.Presenter {
                     ZhihuCache cache = DataSupport.select("zhihu_content").where("zhihu_id = ?", id + "").findFirst(ZhihuCache.class);
                     try {
                         zhihuDailyStory = gson.fromJson(cache.getZhihu_content(), ZhihuDailyStory.class);
-                    } catch (JsonSyntaxException e) {
+                        view.showResult(convertZhihuContent(zhihuDailyStory.getBody()));//TODO
+                        view.stopLoading();
+                    } catch (JsonSyntaxException | NullPointerException e) {
                         view.showResult(cache.getZhihu_content());
                         view.stopLoading();
                     }
-                    view.showResult(convertZhihuContent(zhihuDailyStory.getBody()));
-                    view.stopLoading();
                 }
                 break;
 
@@ -368,7 +368,7 @@ public class DetailPresenter implements DetailContract.Presenter {
                             @Override
                             public void onResponse(Call<ResponseBody> call, Response<ResponseBody> response) {
                                 try {
-                                    convertGuokrContent(response.body().string());//该方法会为guokrStory赋值
+                                    convertGuokeContent(response.body().string());//该方法会为guokrStory赋值
                                 } catch (IOException e) {
                                     e.printStackTrace();
                                 }
@@ -389,7 +389,7 @@ public class DetailPresenter implements DetailContract.Presenter {
                     }
                 } else {
                     GuokeCache cache = select("guoke_content").where("guoke_id = ?", id + "").findFirst(GuokeCache.class);
-                    convertGuokrContent(cache.getGuoke_content());
+                    convertGuokeContent(cache.getGuoke_content());
                     view.showResult(guokeStory);
                     view.stopLoading();
                 }
@@ -485,7 +485,7 @@ public class DetailPresenter implements DetailContract.Presenter {
 
 
         // 根据主题的不同确定不同的加载内容
-        // load content judging by different theme
+        // loadMoment content judging by different theme
         String theme = "<body className=\"\" onload=\"onLoaded()\">";
         if ((context.getResources().getConfiguration().uiMode & Configuration.UI_MODE_NIGHT_MASK)
                 == Configuration.UI_MODE_NIGHT_YES) {
@@ -504,7 +504,7 @@ public class DetailPresenter implements DetailContract.Presenter {
                 .append("</body></html>").toString();
     }
 
-    private void convertGuokrContent(String content) {
+    private void convertGuokeContent(String content) {
         // 简单粗暴的去掉下载的div部分
         this.guokeStory = content.replace("<div class=\"down\" id=\"down-footer\">\n" +
                 "        <img src=\"http://static.guokr.com/apps/handpick/images/c324536d.jingxuan-logo.png\" class=\"jingxuan-img\">\n" +

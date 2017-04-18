@@ -25,14 +25,6 @@ public interface ZhihuService {
             .addConverterFactory(GsonConverterFactory.create(new Gson()))
             .build().create(ZhihuService.class);
 
-    ZhihuService SERVICE_NEWS =new Retrofit.Builder()
-            .baseUrl("http://news-at.zhihu.com/")
-            .client(new OkHttpClient.Builder()
-                    .retryOnConnectionFailure(true)//设置失败重试
-                    .build())
-//            .addConverterFactory(GsonConverterFactory.create(new Gson()))
-            .build().create(ZhihuService.class);
-
     ZhihuService SERVICE_STORY =new Retrofit.Builder()
             .baseUrl("http://news-at.zhihu.com/")
             .client(new OkHttpClient.Builder()
@@ -44,6 +36,12 @@ public interface ZhihuService {
     @GET("api/4/news/before/{date}")
     Call<ZhihuDailyNews> loadHistory(@Path("date") String date);
 
+    ZhihuService SERVICE_NEWS =new Retrofit.Builder()
+            .baseUrl("http://news-at.zhihu.com/")
+            .client(new OkHttpClient.Builder()
+                    .retryOnConnectionFailure(true)//设置失败重试
+                    .build())
+            .build().create(ZhihuService.class);
     @GET("api/4/news/{zhihu_id}")
     Call<ResponseBody> loadNews(@Path("zhihu_id") String zhihuId);
 

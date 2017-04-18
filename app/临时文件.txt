@@ -1,6 +1,3 @@
-当View被销毁时，Presenter中更新View时许需要判断
-Presenter与View的生命周期问题
-
 shortcuts文件的作用
 
 xliff?
@@ -52,6 +49,6 @@ xliff?
 ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 1、<activity android:configChanges="orientation|keyboardHidden|screenSize|screenLayout"/>
 
-2、关于、设置界面的实现 PreferenceFragmentCompat与PreferenceActivityCompat
+2、关于、设置界面的实现 PreferenceFragmentCompat与PreferenceActivity
 
 3、现在展示详细内容时对WebView的使用，已及该界面中BottomSheet中的各种操作

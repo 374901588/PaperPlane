@@ -22,6 +22,7 @@ import android.content.ContentValues;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
+import android.content.SharedPreferences;
 import android.os.IBinder;
 import android.support.annotation.Nullable;
 import android.support.v4.content.LocalBroadcastManager;
@@ -29,19 +30,27 @@ import android.text.TextUtils;
 import android.util.Log;
 
 import com.google.gson.Gson;
+import com.hut.zero.bean.DoubanCache;
+import com.hut.zero.bean.GuokeCache;
 import com.hut.zero.bean.ZhihuCache;
 import com.hut.zero.bean.ZhihuDailyStory;
 import com.hut.zero.network_request.CommonService;
+import com.hut.zero.network_request.DoubanService;
+import com.hut.zero.network_request.GuokeService;
 import com.hut.zero.network_request.ZhihuService;
+import com.hut.zero.other_pages.SettingsPreferenceActivity;
 
 import org.litepal.crud.DataSupport;
 
 import java.io.IOException;
+import java.util.Calendar;
 
+import okhttp3.OkHttpClient;
 import okhttp3.ResponseBody;
 import retrofit2.Call;
 import retrofit2.Callback;
 import retrofit2.Response;
+import retrofit2.Retrofit;
 
 /**
  * Created by Lizhaotailang on 2016/9/18.
@@ -53,8 +62,6 @@ public class CacheService extends Service {
     public static final int TYPE_ZHIHU = 0x00;
     public static final int TYPE_GUOKE = 0x01;
     public static final int TYPE_DOUBAN = 0x02;
-
-    private static final String TAG = CacheService.class.getSimpleName();
 
     private LocalBroadcastManager manager;
     private LocalReceiver localReceiver = new LocalReceiver();
@@ -98,14 +105,16 @@ public class CacheService extends Service {
                 @Override
                 public void onResponse(Call<ResponseBody> call, Response<ResponseBody> response1) {
                     try {
-                        ZhihuDailyStory zhihuDailyStory= new Gson().fromJson(response1.body().string(), ZhihuDailyStory.class);
+                        String s1=response1.body().string();
+                        ZhihuDailyStory zhihuDailyStory= new Gson().fromJson(s1, ZhihuDailyStory.class);
                         if (zhihuDailyStory.getType()==1) {
                             CommonService.SERVICE_DYNAMIC_URL.loadDynamic(zhihuDailyStory.getShare_url()).enqueue(new Callback<ResponseBody>() {
                                 @Override
                                 public void onResponse(Call<ResponseBody> call, Response<ResponseBody> response2) {
                                     try {
+                                        String s2 = response2.body().string();
                                         ContentValues values = new ContentValues();
-                                        values.put("zhihu_content",response2.body().string());
+                                        values.put("zhihu_content",s2);
                                         DataSupport.updateAll(ZhihuCache.class, values, "zhihu_id = ?", ""+id);
                                     } catch (IOException e) {
                                         e.printStackTrace();
@@ -119,8 +128,8 @@ public class CacheService extends Service {
                             });
                         } else {
                             ContentValues values = new ContentValues();
-                            values.put("zhihu_content",response1.body().string());
-                            DataSupport.updateAll(ZhihuCache.class, values, "zhihu_id = ?", ""+id);
+                            values.put("zhihu_content",s1);
+                            DataSupport.updateAll(ZhihuCache.class, values, "zhihu_id = ?", "" + id);
                         }
                     } catch (IOException e) {
                         e.printStackTrace();
@@ -160,16 +169,76 @@ public class CacheService extends Service {
     }
 
     private void startDoubanCache(final int id) {
+        DoubanCache cache=DataSupport.select("douban_content").where("douban_id = ?",""+id).findFirst(DoubanCache.class);
+        if (cache!=null && TextUtils.isEmpty(cache.getDouban_content())) {
+            new Retrofit.Builder()
+                    .baseUrl("https://moment.douban.com/")
+                    .client(new OkHttpClient.Builder()
+                            .retryOnConnectionFailure(true)//设置失败重试
+                            .build())
+                    .build().create(DoubanService.class)
+                    .loadArticleDetailForResponseBody("" + id)
+                    .enqueue(new Callback<ResponseBody>() {
+                        @Override
+                        public void onResponse(Call<ResponseBody> call, Response<ResponseBody> response) {
+                            try {
+                                String s = response.body().string();
+                                ContentValues values = new ContentValues();
+                                values.put("douban_content", s);
+                                DataSupport.updateAll(DoubanCache.class, values, "douban_id = ?", id + "");
+                            } catch (IOException e) {
+                                e.printStackTrace();
+                            }
+
+                        }
+
+                        @Override
+                        public void onFailure(Call<ResponseBody> call, Throwable t) {
+                            Log.d("CacheService===>\n","startDoubanCache()->DoubanService-loadArticleDetailForResponseBody()请求失败!");
+                        }
+                    });
+        }
+    }
+
+    private void deleteTimeoutPosts() {
+
+        SharedPreferences sp = getSharedPreferences(SettingsPreferenceActivity.SETTINGS_CONFIG_FILE_NAME, MODE_PRIVATE);
+
+        long timeStamp = (Calendar.getInstance().getTimeInMillis() / 1000) - Long.parseLong(sp.getString("time_of_saving_articles", "7")) * 24 * 60 * 60;
+        DataSupport.deleteAll(ZhihuCache.class, "zhihu_time < ? and bookmark != 1", ""+timeStamp);
+        DataSupport.deleteAll(DoubanCache.class, "douban_time < ? and bookmark != 1", ""+timeStamp);
+        DataSupport.deleteAll(GuokeCache.class, "guoke_time < ? and bookmark != 1", ""+timeStamp);
     }
 
     private void startGuokeCache(final int id) {
+        GuokeCache cache=DataSupport.select("guoke_content").where("guoke_id = ?",""+id).findFirst(GuokeCache.class);
+        if (cache!=null && TextUtils.isEmpty(cache.getGuoke_content())) {
+            GuokeService.SERVICE_JINGXUAN.loadJingxuan(id+"").enqueue(new Callback<ResponseBody>() {
+                @Override
+                public void onResponse(Call<ResponseBody> call, Response<ResponseBody> response) {
+                    try {
+                        String s = response.body().string();
+                        ContentValues values = new ContentValues();
+                        values.put("guoke_content", s);
+                        DataSupport.updateAll(GuokeCache.class, values, "guoke_id = ?", id + "");
+                    } catch (IOException e) {
+                        e.printStackTrace();
+                    }
+                }
+
+                @Override
+                public void onFailure(Call<ResponseBody> call, Throwable t) {
+                    Log.d("CacheService===>\n","startGuokeCache()->GuokeService.SERVICE_JINGXUAN.loadJingxuan()请求失败!");
+                }
+            });
+        }
     }
+
     @Override
     public void onDestroy() {
         super.onDestroy();
-        //TODO VolleySingleton.getVolleySingleton(this).getRequestQueue().cancelAll(TAG);
-
         manager.unregisterReceiver(localReceiver);
+        deleteTimeoutPosts();
     }
 
 }

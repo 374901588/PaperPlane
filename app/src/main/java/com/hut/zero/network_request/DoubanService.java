@@ -5,6 +5,7 @@ import com.hut.zero.bean.DoubanMomentNews;
 import com.hut.zero.bean.DoubanMomentStory;
 
 import okhttp3.OkHttpClient;
+import okhttp3.ResponseBody;
 import retrofit2.Call;
 import retrofit2.Retrofit;
 import retrofit2.converter.gson.GsonConverterFactory;
@@ -25,17 +26,12 @@ public interface DoubanService {
             .addConverterFactory(GsonConverterFactory.create(new Gson()))
             .build().create(DoubanService.class);
 
-    DoubanService SERVICE_ARTICLE_DETAIL =new Retrofit.Builder()
-            .baseUrl("https://moment.douban.com/")
-            .client(new OkHttpClient.Builder()
-                    .retryOnConnectionFailure(true)//设置失败重试
-                    .build())
-            .addConverterFactory(GsonConverterFactory.create(new Gson()))
-            .build().create(DoubanService.class);
-
     @GET("api/stream/date/{date}")
-    Call<DoubanMomentNews> load(@Path("date") String date);
+    Call<DoubanMomentNews> loadMoment(@Path("date") String date);
 
     @GET("api/post/{id}")
     Call<DoubanMomentStory> loadArticleDetail(@Path("id") String id);
+
+    @GET("api/post/{id}")
+    Call<ResponseBody> loadArticleDetailForResponseBody(@Path("id") String id);
 }
