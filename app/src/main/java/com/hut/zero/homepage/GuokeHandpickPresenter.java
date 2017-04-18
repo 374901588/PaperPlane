@@ -2,6 +2,7 @@ package com.hut.zero.homepage;
 
 import android.content.Context;
 import android.content.Intent;
+import android.support.v4.content.LocalBroadcastManager;
 import android.util.Log;
 
 import com.google.gson.Gson;
@@ -11,6 +12,7 @@ import com.hut.zero.bean.GuokeCache;
 import com.hut.zero.bean.GuokeHandpickNews;
 import com.hut.zero.detail.DetailActivity;
 import com.hut.zero.model.GuokeModelImpl;
+import com.hut.zero.service.CacheService;
 import com.hut.zero.util.NetworkState;
 
 import org.litepal.crud.DataSupport;
@@ -67,10 +69,10 @@ public class GuokeHandpickPresenter implements GuokeHandpickContract.Presenter {
                                 temp.setGuoke_content("");
                                 temp.setGuoke_time((long)re.getDate_picked());
                                 if (temp.save()) {
-//                                    Intent intent = new Intent("com.hut.zero.LOCAL_BROADCAST");
-//                                    intent.putExtra("type", CacheService.TYPE_GUOKE);
-//                                    intent.putExtra("id", re.getId());
-//                                    LocalBroadcastManager.getInstance(mContext).sendBroadcast(intent);
+                                    Intent intent = new Intent("com.hut.zero.LOCAL_BROADCAST");
+                                    intent.putExtra("type", CacheService.TYPE_GUOKE);
+                                    intent.putExtra("id", re.getId());
+                                    LocalBroadcastManager.getInstance(mContext).sendBroadcast(intent);
                                 } else {
                                     Log.e("GuokeHandpickPresenter","loadPosts->数据保存失败");
                                 }

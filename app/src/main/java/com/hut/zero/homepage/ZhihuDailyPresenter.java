@@ -2,6 +2,7 @@ package com.hut.zero.homepage;
 
 import android.content.Context;
 import android.content.Intent;
+import android.support.v4.content.LocalBroadcastManager;
 import android.util.Log;
 
 import com.google.gson.Gson;
@@ -11,6 +12,7 @@ import com.hut.zero.bean.ZhihuCache;
 import com.hut.zero.bean.ZhihuDailyNews;
 import com.hut.zero.detail.DetailActivity;
 import com.hut.zero.model.ZhihuModelImpl;
+import com.hut.zero.service.CacheService;
 import com.hut.zero.util.DateFormatter;
 import com.hut.zero.util.NetworkState;
 
@@ -84,10 +86,10 @@ public class ZhihuDailyPresenter implements ZhihuDailyContract.Presenter {
                                     Date dateTemp = format.parse(zhihuDailyNews.getDate());
                                     temp.setZhihu_time(dateTemp.getTime() / 1000);
                                     if (temp.save()) {
-//                                        Intent intent = new Intent("com.hut.zero.LOCAL_BROADCAST");
-//                                        intent.putExtra("type", CacheService.TYPE_ZHIHU);
-//                                        intent.putExtra("id", item.getId());
-//                                        LocalBroadcastManager.getInstance(mContext).sendBroadcast(intent);
+                                        Intent intent = new Intent("com.hut.zero.LOCAL_BROADCAST");
+                                        intent.putExtra("type", CacheService.TYPE_ZHIHU);
+                                        intent.putExtra("id", item.getId());
+                                        LocalBroadcastManager.getInstance(mContext).sendBroadcast(intent);
                                     } else {
                                         Log.e("ZhihuDailyPresenter", "loadPosts->数据保存失败");
                                     }

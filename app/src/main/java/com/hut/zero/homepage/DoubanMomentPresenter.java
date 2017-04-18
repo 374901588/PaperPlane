@@ -2,6 +2,7 @@ package com.hut.zero.homepage;
 
 import android.content.Context;
 import android.content.Intent;
+import android.support.v4.content.LocalBroadcastManager;
 import android.util.Log;
 
 import com.google.gson.Gson;
@@ -11,6 +12,7 @@ import com.hut.zero.bean.DoubanCache;
 import com.hut.zero.bean.DoubanMomentNews;
 import com.hut.zero.detail.DetailActivity;
 import com.hut.zero.model.DoubanModelImpl;
+import com.hut.zero.service.CacheService;
 import com.hut.zero.util.DateFormatter;
 import com.hut.zero.util.NetworkState;
 
@@ -97,10 +99,10 @@ public class DoubanMomentPresenter implements DoubanMomentContract.Presenter {
                                     temp.setDouban_time(date.getTime()/1000);
                                     temp.setDouban_content("");
                                     if (temp.save()) {
-//                                        Intent intent = new Intent("com.hut.zero.LOCAL_BROADCAST");
-//                                        intent.putExtra("type", CacheService.TYPE_DOUBAN);
-//                                        intent.putExtra("id", item.getId());
-//                                        LocalBroadcastManager.getInstance(mContext).sendBroadcast(intent);
+                                        Intent intent = new Intent("com.hut.zero.LOCAL_BROADCAST");
+                                        intent.putExtra("type", CacheService.TYPE_DOUBAN);
+                                        intent.putExtra("id", item.getId());
+                                        LocalBroadcastManager.getInstance(mContext).sendBroadcast(intent);
                                     } else {
                                         Log.e("DoubanMomentPresenter","loadPosts->数据保存失败");
                                     }
