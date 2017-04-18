@@ -14,7 +14,7 @@ xliff?
                                                                   at android.app.ActivityThread.access$900(ActivityThread.java:148)
                                                                   at android.app.ActivityThread$H.handleMessage(ActivityThread.java:1288)
                                                                   at android.os.Handler.dispatchMessage(Handler.java:102)
-                                                                  at android.os.Looper.loop(Looper.java:135)
+                                                                   at android.os.Looper.loop(Looper.java:135)
                                                                   at android.app.ActivityThread.main(ActivityThread.java:5240)
                                                                   at java.lang.reflect.Method.invoke(Native Method)
                                                                   at java.lang.reflect.Method.invoke(Method.java:372)
@@ -52,3 +52,9 @@ xliff?
 2、关于、设置界面的实现 PreferenceFragmentCompat与PreferenceActivity
 
 3、现在展示详细内容时对WebView的使用，已及该界面中BottomSheet中的各种操作
+
+4、在DoubanMomentFragment的SnackBar是相对于RefreshLayout显示的，原来在fragment_liset布局中缺少父布局CoordinatorLayout，此时如果
+因为特殊情况（如第一次进入时没有网络）而显示SnackBar就会出现异常：java.lang.IllegalArgumentException: No suitable parent found from the given view. Please provide a valid view.
+这是因为RefreshLayout没有CoordinatorLayout作为父布局。
+而DoubanMomentFragment和ZhihuDailyFragment不会出现这种情况是因为显示的SnackBar是相对于fragment_main布局的FloatingActionButton显示的，
+FloatingActionButton有CoordinatorLayout作为父布局.

@@ -85,5 +85,7 @@ public class GuokeHandpickFragment extends Fragment implements GuokeHandpickCont
     @Override
     public void stopLoading() {
         mBinding.refreshLayout.setRefreshing(false);
+        Snackbar.make(mBinding.refreshLayout, "结束加载",Snackbar.LENGTH_SHORT)
+                .show();
     }
 }
