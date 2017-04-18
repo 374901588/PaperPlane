@@ -60,7 +60,7 @@ public class GuokeHandpickPresenter implements GuokeHandpickContract.Presenter {
                     @Override
                     public void onResponse(Call<GuokeHandpickNews> call, Response<GuokeHandpickNews> response) {
                         dataForResult.clear();
-                        for (GuokeHandpickNews.Result re:response.body().getResult()) {//TODO
+                        for (GuokeHandpickNews.Result re:response.body().getResult()) {
                             dataForResult.add(re);
                             if (!isQuestionIdExist(re.getId())) {
                                 GuokeCache temp=new GuokeCache();

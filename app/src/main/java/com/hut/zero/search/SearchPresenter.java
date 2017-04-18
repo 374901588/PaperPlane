@@ -68,7 +68,6 @@ public class SearchPresenter implements SearchContract.Presenter {
         doubanList.clear();
         types.clear();
 
-        //TODO
         types.add(TYPE_ZHIHU_WITH_HEADER);
         List<ZhihuCache> list1 = DataSupport.where("bookmark = 1 and zhihu_news like ?", "%"+queryWords+"%").find(ZhihuCache.class);
         Observable.from(list1)

@@ -30,6 +30,7 @@ import android.support.customtabs.CustomTabsIntent;
 import android.text.Html;
 import android.util.Log;
 import android.webkit.WebView;
+import android.widget.Toast;
 
 import com.google.gson.Gson;
 import com.google.gson.JsonSyntaxException;
@@ -352,10 +353,13 @@ public class DetailPresenter implements DetailContract.Presenter {
                     ZhihuCache cache = DataSupport.select("zhihu_content").where("zhihu_id = ?", id + "").findFirst(ZhihuCache.class);
                     try {
                         zhihuDailyStory = gson.fromJson(cache.getZhihu_content(), ZhihuDailyStory.class);
-                        view.showResult(convertZhihuContent(zhihuDailyStory.getBody()));//TODO
+                        view.showResult(convertZhihuContent(zhihuDailyStory.getBody()));
                         view.stopLoading();
-                    } catch (JsonSyntaxException | NullPointerException e) {
+                    } catch (JsonSyntaxException e) {
                         view.showResult(cache.getZhihu_content());
+                        view.stopLoading();
+                    } catch (NullPointerException e) {
+                        Toast.makeText(context,"无法从本地获取详细内容",Toast.LENGTH_SHORT).show();
                         view.stopLoading();
                     }
                 }
@@ -388,10 +392,15 @@ public class DetailPresenter implements DetailContract.Presenter {
                         e.printStackTrace();
                     }
                 } else {
-                    GuokeCache cache = select("guoke_content").where("guoke_id = ?", id + "").findFirst(GuokeCache.class);
-                    convertGuokeContent(cache.getGuoke_content());
-                    view.showResult(guokeStory);
-                    view.stopLoading();
+                    try {
+                        GuokeCache cache = select("guoke_content").where("guoke_id = ?", id + "").findFirst(GuokeCache.class);
+                        convertGuokeContent(cache.getGuoke_content());
+                        view.showResult(guokeStory);
+                        view.stopLoading();
+                    } catch (NullPointerException e) {
+                        Toast.makeText(context,"无法从本地获取详细内容",Toast.LENGTH_SHORT).show();
+                        view.stopLoading();
+                    }
                 }
                 break;
 
@@ -418,10 +427,15 @@ public class DetailPresenter implements DetailContract.Presenter {
                         e.printStackTrace();
                     }
                 } else {
-                    DoubanCache cache = select("douban_content").where("douban_id = ?", id + "").findFirst(DoubanCache.class);
-                    doubanMomentStory = gson.fromJson(cache.getDouban_content(), DoubanMomentStory.class);
-                    view.showResult(convertDoubanContent());
-                    view.stopLoading();
+                    try {
+                        DoubanCache cache = select("douban_content").where("douban_id = ?", id + "").findFirst(DoubanCache.class);
+                        doubanMomentStory = gson.fromJson(cache.getDouban_content(), DoubanMomentStory.class);
+                        view.showResult(convertDoubanContent());
+                        view.stopLoading();
+                    } catch (NullPointerException e) {
+                        Toast.makeText(context,"无法从本地获取详细内容",Toast.LENGTH_SHORT).show();
+                        view.stopLoading();
+                    }
                 }
                 break;
             default:
