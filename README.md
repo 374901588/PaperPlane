@@ -1,4 +1,4 @@
-特别声明：本项目仿照自[如何用一周时间开发一款Android APP并在Google Play上线](https://github.com/TonnyL/PaperPlane/wiki/%E5%A6%82%E4%BD%95%E7%94%A8%E4%B8%80%E5%91%A8%E6%97%B6%E9%97%B4%E5%BC%80%E5%8F%91%E4%B8%80%E6%AC%BEAndroid-APP%E5%B9%B6%E5%9C%A8Google-Play%E4%B8%8A%E7%BA%BF) ，项目仅供学习交流使用。
+特别声明：本项目仿照自[如何用一周时间开发一款Android APP并在Google Play上线](https://github.com/TonnyL/PaperPlane/wiki/%E5%A6%82%E4%BD%95%E7%94%A8%E4%B8%80%E5%91%A8%E6%97%B6%E9%97%B4%E5%BC%80%E5%8F%91%E4%B8%80%E6%AC%BEAndroid-APP%E5%B9%B6%E5%9C%A8Google-Play%E4%B8%8A%E7%BA%BF) ，本项目仅供学习交流使用，请勿用于其他用户。
 
 ----------
 
