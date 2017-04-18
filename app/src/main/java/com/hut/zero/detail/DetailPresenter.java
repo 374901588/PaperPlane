@@ -28,9 +28,9 @@ import android.content.res.Configuration;
 import android.net.Uri;
 import android.support.customtabs.CustomTabsIntent;
 import android.text.Html;
+import android.text.TextUtils;
 import android.util.Log;
 import android.webkit.WebView;
-import android.widget.Toast;
 
 import com.google.gson.Gson;
 import com.google.gson.JsonSyntaxException;
@@ -131,10 +131,10 @@ public class DetailPresenter implements DetailContract.Presenter {
             String uriStr = null;
             switch (type) {
                 case TYPE_ZHIHU:
-                    uriStr=zhihuDailyStory.getShare_url();
+                    uriStr = zhihuDailyStory.getShare_url();
                     break;
                 case TYPE_GUOKE:
-                    uriStr= Api.GUOKE_ARTICLE_LINK_V1 + id;
+                    uriStr = Api.GUOKE_ARTICLE_LINK_V1 + id;
                     break;
                 case TYPE_DOUBAN:
                     uriStr = doubanMomentStory.getShort_url();
@@ -309,6 +309,7 @@ public class DetailPresenter implements DetailContract.Presenter {
         }
     }
 
+    //改善了原有逻辑，如果本地有缓存了详细内容，则先从本地获取，减少网络的请求
     @Override
     public void requestData() {
         if (id == 0 || type == null) {
@@ -324,116 +325,128 @@ public class DetailPresenter implements DetailContract.Presenter {
 
         switch (type) {
             case TYPE_ZHIHU:
-                if (NetworkState.networkConnected(context)) {
+                ZhihuCache cache = DataSupport.select("zhihu_content").where("zhihu_id = ?", id + "").findFirst(ZhihuCache.class);
+                String content = cache.getZhihu_content();
+                //如果从本地获取成功
+                if (!TextUtils.isEmpty(content)) {
+                    Log.d("测试","TYPE_ZHIHU==>从本地获取");
                     try {
-                        new ZhihuModelImpl().loadStory("" + id, new Callback<ZhihuDailyStory>() {
-                            @Override
-                            public void onResponse(Call<ZhihuDailyStory> call, Response<ZhihuDailyStory> response) {
-                                zhihuDailyStory = response.body();//这里记得给zhihuDailyStory赋值，否则zhihuDailyStory为空，不能正常在浏览器中打开
-                                if (zhihuDailyStory.getBody() == null) {
-                                    view.showResultWithoutBody(zhihuDailyStory.getShare_url());
-                                } else {
-                                    view.showResult(convertZhihuContent(response.body().getBody()));
-                                }
-                                view.stopLoading();
-                            }
-
-                            @Override
-                            public void onFailure(Call<ZhihuDailyStory> call, Throwable t) {
-                                view.stopLoading();
-                                view.showLoadingError();
-                            }
-                        });
-                    } catch (JsonSyntaxException e) {
-                        view.showLoadingError();
-                        view.stopLoading();
-                        e.printStackTrace();
-                    }
-                } else {
-                    ZhihuCache cache = DataSupport.select("zhihu_content").where("zhihu_id = ?", id + "").findFirst(ZhihuCache.class);
-                    try {
-                        zhihuDailyStory = gson.fromJson(cache.getZhihu_content(), ZhihuDailyStory.class);
+                        zhihuDailyStory = gson.fromJson(content, ZhihuDailyStory.class);
                         view.showResult(convertZhihuContent(zhihuDailyStory.getBody()));
                         view.stopLoading();
                     } catch (JsonSyntaxException e) {
                         view.showResult(cache.getZhihu_content());
                         view.stopLoading();
-                    } catch (NullPointerException e) {
-                        Toast.makeText(context,"无法从本地获取详细内容",Toast.LENGTH_SHORT).show();
+                    }
+                } else {
+                    if (NetworkState.networkConnected(context)) {
+                        Log.d("测试","TYPE_ZHIHU==>从网络获取");
+                        try {
+                            new ZhihuModelImpl().loadStory("" + id, new Callback<ZhihuDailyStory>() {
+                                @Override
+                                public void onResponse(Call<ZhihuDailyStory> call, Response<ZhihuDailyStory> response) {
+                                    zhihuDailyStory = response.body();//这里记得给zhihuDailyStory赋值，否则zhihuDailyStory为空，不能正常在浏览器中打开
+                                    if (zhihuDailyStory.getBody() == null) {
+                                        view.showResultWithoutBody(zhihuDailyStory.getShare_url());
+                                    } else {
+                                        view.showResult(convertZhihuContent(response.body().getBody()));
+                                    }
+                                    view.stopLoading();
+                                }
+
+                                @Override
+                                public void onFailure(Call<ZhihuDailyStory> call, Throwable t) {
+                                    view.stopLoading();
+                                    view.showLoadingError();
+                                }
+                            });
+                        } catch (JsonSyntaxException e) {
+                            view.showLoadingError();
+                            view.stopLoading();
+                            e.printStackTrace();
+                        }
+                    } else {
+                        view.showLoadingError();
                         view.stopLoading();
                     }
                 }
                 break;
 
             case TYPE_GUOKE:
-                if (NetworkState.networkConnected(context)) {
-                    try {
-                        new GuokeModelImpl().loadJingxuan("" + id, new Callback<ResponseBody>() {
-                            @Override
-                            public void onResponse(Call<ResponseBody> call, Response<ResponseBody> response) {
-                                try {
-                                    convertGuokeContent(response.body().string());//该方法会为guokrStory赋值
-                                } catch (IOException e) {
-                                    e.printStackTrace();
-                                }
-                                view.showResult(guokeStory);
-                                view.stopLoading();
-                            }
-
-                            @Override
-                            public void onFailure(Call<ResponseBody> call, Throwable t) {
-                                view.stopLoading();
-                                view.showLoadingError();
-                            }
-                        });
-                    } catch (JsonSyntaxException e) {
-                        view.showLoadingError();
-                        view.stopLoading();
-                        e.printStackTrace();
-                    }
+                GuokeCache cache2 = DataSupport.select("guoke_content").where("guoke_id = ?", id + "").findFirst(GuokeCache.class);
+                String content2 = cache2.getGuoke_content();
+                if (!TextUtils.isEmpty(content2)) {
+                    Log.d("测试","TYPE_ZHIHU==>从本地获取");
+                    convertGuokeContent(content2);
+                    view.showResult(guokeStory);
+                    view.stopLoading();
                 } else {
-                    try {
-                        GuokeCache cache = select("guoke_content").where("guoke_id = ?", id + "").findFirst(GuokeCache.class);
-                        convertGuokeContent(cache.getGuoke_content());
-                        view.showResult(guokeStory);
-                        view.stopLoading();
-                    } catch (NullPointerException e) {
-                        Toast.makeText(context,"无法从本地获取详细内容",Toast.LENGTH_SHORT).show();
+                    if (NetworkState.networkConnected(context)) {
+                        Log.d("测试","TYPE_ZHIHU==>从网络获取");
+                        try {
+                            new GuokeModelImpl().loadJingxuan("" + id, new Callback<ResponseBody>() {
+                                @Override
+                                public void onResponse(Call<ResponseBody> call, Response<ResponseBody> response) {
+                                    try {
+                                        convertGuokeContent(response.body().string());//该方法会为guokrStory赋值
+                                    } catch (IOException e) {
+                                        e.printStackTrace();
+                                    }
+                                    view.showResult(guokeStory);
+                                    view.stopLoading();
+                                }
+
+                                @Override
+                                public void onFailure(Call<ResponseBody> call, Throwable t) {
+                                    view.stopLoading();
+                                    view.showLoadingError();
+                                }
+                            });
+                        } catch (JsonSyntaxException e) {
+                            view.showLoadingError();
+                            view.stopLoading();
+                            e.printStackTrace();
+                        }
+                    } else {
+                        view.showLoadingError();
                         view.stopLoading();
                     }
                 }
                 break;
 
             case TYPE_DOUBAN:
-                if (NetworkState.networkConnected(context)) {
-                    try {
-                        new DoubanModelImpl().loadArticleDetail("" + id, new Callback<DoubanMomentStory>() {
-                            @Override
-                            public void onResponse(Call<DoubanMomentStory> call, Response<DoubanMomentStory> response) {
-                                doubanMomentStory = response.body();
-                                view.showResult(convertDoubanContent());
-                                view.stopLoading();
-                            }
-
-                            @Override
-                            public void onFailure(Call<DoubanMomentStory> call, Throwable t) {
-                                view.showLoadingError();
-                                view.stopLoading();
-                            }
-                        });
-                    } catch (JsonSyntaxException e) {
-                        view.showLoadingError();
-                        view.stopLoading();
-                        e.printStackTrace();
-                    }
+                DoubanCache cache3 = select("douban_content").where("douban_id = ?", id + "").findFirst(DoubanCache.class);
+                String content3 = cache3.getDouban_content();
+                if (!TextUtils.isEmpty(content3)) {
+                    Log.d("测试","TYPE_ZHIHU==>从本地获取");
+                    doubanMomentStory = gson.fromJson(content3, DoubanMomentStory.class);
+                    view.showResult(convertDoubanContent());
+                    view.stopLoading();
                 } else {
-                    try {
-                        DoubanCache cache = select("douban_content").where("douban_id = ?", id + "").findFirst(DoubanCache.class);
-                        doubanMomentStory = gson.fromJson(cache.getDouban_content(), DoubanMomentStory.class);
-                        view.showResult(convertDoubanContent());
-                        view.stopLoading();
-                    } catch (NullPointerException e) {
-                        Toast.makeText(context,"无法从本地获取详细内容",Toast.LENGTH_SHORT).show();
+                    if (NetworkState.networkConnected(context)) {
+                        Log.d("测试","TYPE_ZHIHU==>从网络获取");
+                        try {
+                            new DoubanModelImpl().loadArticleDetail("" + id, new Callback<DoubanMomentStory>() {
+                                @Override
+                                public void onResponse(Call<DoubanMomentStory> call, Response<DoubanMomentStory> response) {
+                                    doubanMomentStory = response.body();
+                                    view.showResult(convertDoubanContent());
+                                    view.stopLoading();
+                                }
+
+                                @Override
+                                public void onFailure(Call<DoubanMomentStory> call, Throwable t) {
+                                    view.showLoadingError();
+                                    view.stopLoading();
+                                }
+                            });
+                        } catch (JsonSyntaxException e) {
+                            view.showLoadingError();
+                            view.stopLoading();
+                            e.printStackTrace();
+                        }
+                    } else {
+                        view.showLoadingError();
                         view.stopLoading();
                     }
                 }
@@ -444,6 +457,143 @@ public class DetailPresenter implements DetailContract.Presenter {
                 break;
         }
     }
+
+      //原来实现的逻辑或先从网络获取，没有网络时再从本地获取
+//    @Override
+//    public void requestData() {
+//        if (id == 0 || type == null) {
+//            view.showLoadingError();
+//            return;
+//        }
+//
+//        view.showLoading();
+//        view.setTitle(title);
+//        view.showCover(coverUrl);
+//
+//        view.setImageMode(sp.getBoolean("no_picture_mode", false));
+//
+//        switch (type) {
+//            case TYPE_ZHIHU:
+//                if (NetworkState.networkConnected(context)) {
+//                    try {
+//                        new ZhihuModelImpl().loadStory("" + id, new Callback<ZhihuDailyStory>() {
+//                            @Override
+//                            public void onResponse(Call<ZhihuDailyStory> call, Response<ZhihuDailyStory> response) {
+//                                zhihuDailyStory = response.body();//这里记得给zhihuDailyStory赋值，否则zhihuDailyStory为空，不能正常在浏览器中打开
+//                                if (zhihuDailyStory.getBody() == null) {
+//                                    view.showResultWithoutBody(zhihuDailyStory.getShare_url());
+//                                } else {
+//                                    view.showResult(convertZhihuContent(response.body().getBody()));
+//                                }
+//                                view.stopLoading();
+//                            }
+//
+//                            @Override
+//                            public void onFailure(Call<ZhihuDailyStory> call, Throwable t) {
+//                                view.stopLoading();
+//                                view.showLoadingError();
+//                            }
+//                        });
+//                    } catch (JsonSyntaxException e) {
+//                        view.showLoadingError();
+//                        view.stopLoading();
+//                        e.printStackTrace();
+//                    }
+//                } else {
+//                    ZhihuCache cache = DataSupport.select("zhihu_content").where("zhihu_id = ?", id + "").findFirst(ZhihuCache.class);
+//                    try {
+//                        zhihuDailyStory = gson.fromJson(cache.getZhihu_content(), ZhihuDailyStory.class);
+//                        view.showResult(convertZhihuContent(zhihuDailyStory.getBody()));
+//                        view.stopLoading();
+//                    } catch (JsonSyntaxException e) {
+//                        view.showResult(cache.getZhihu_content());
+//                        view.stopLoading();
+//                    } catch (NullPointerException e) {
+//                        view.showLoadingError();
+//                        view.stopLoading();
+//                    }
+//                }
+//                break;
+//
+//            case TYPE_GUOKE:
+//                if (NetworkState.networkConnected(context)) {
+//                    try {
+//                        new GuokeModelImpl().loadJingxuan("" + id, new Callback<ResponseBody>() {
+//                            @Override
+//                            public void onResponse(Call<ResponseBody> call, Response<ResponseBody> response) {
+//                                try {
+//                                    convertGuokeContent(response.body().string());//该方法会为guokrStory赋值
+//                                } catch (IOException e) {
+//                                    e.printStackTrace();
+//                                }
+//                                view.showResult(guokeStory);
+//                                view.stopLoading();
+//                            }
+//
+//                            @Override
+//                            public void onFailure(Call<ResponseBody> call, Throwable t) {
+//                                view.stopLoading();
+//                                view.showLoadingError();
+//                            }
+//                        });
+//                    } catch (JsonSyntaxException e) {
+//                        view.showLoadingError();
+//                        view.stopLoading();
+//                        e.printStackTrace();
+//                    }
+//                } else {
+//                    try {
+//                        GuokeCache cache = select("guoke_content").where("guoke_id = ?", id + "").findFirst(GuokeCache.class);
+//                        convertGuokeContent(cache.getGuoke_content());
+//                        view.showResult(guokeStory);
+//                        view.stopLoading();
+//                    } catch (NullPointerException e) {
+//                        view.showLoadingError();
+//                        view.stopLoading();
+//                    }
+//                }
+//                break;
+//
+//            case TYPE_DOUBAN:
+//                if (NetworkState.networkConnected(context)) {
+//                    try {
+//                        new DoubanModelImpl().loadArticleDetail("" + id, new Callback<DoubanMomentStory>() {
+//                            @Override
+//                            public void onResponse(Call<DoubanMomentStory> call, Response<DoubanMomentStory> response) {
+//                                doubanMomentStory = response.body();
+//                                view.showResult(convertDoubanContent());
+//                                view.stopLoading();
+//                            }
+//
+//                            @Override
+//                            public void onFailure(Call<DoubanMomentStory> call, Throwable t) {
+//                                view.showLoadingError();
+//                                view.stopLoading();
+//                            }
+//                        });
+//                    } catch (JsonSyntaxException e) {
+//                        view.showLoadingError();
+//                        view.stopLoading();
+//                        e.printStackTrace();
+//                    }
+//                } else {
+//                    try {
+//                        DoubanCache cache = select("douban_content").where("douban_id = ?", id + "").findFirst(DoubanCache.class);
+//                        doubanMomentStory = gson.fromJson(cache.getDouban_content(), DoubanMomentStory.class);
+//                        view.showResult(convertDoubanContent());
+//                        view.stopLoading();
+//                    } catch (NullPointerException e) {
+//                        view.showLoadingError();
+//                        view.stopLoading();
+//                    }
+//                }
+//                break;
+//            default:
+//                view.stopLoading();
+//                view.showLoadingError();
+//                break;
+//        }
+//    }
 
     @Override
     public void start() {
