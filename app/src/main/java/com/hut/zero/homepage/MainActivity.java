@@ -21,19 +21,17 @@ import android.view.View;
 import com.hut.zero.R;
 import com.hut.zero.bookmarks.BookmarksFragment;
 import com.hut.zero.bookmarks.BookmarksPresenter;
-import com.hut.zero.databinding.ActivityMain2Binding;
+import com.hut.zero.databinding.ActivityMainBinding;
 import com.hut.zero.other_pages.AboutPreferenceActivity;
 import com.hut.zero.other_pages.SettingsPreferenceActivity;
 import com.hut.zero.service.CacheService;
 
 public class MainActivity extends AppCompatActivity implements NavigationView.OnNavigationItemSelectedListener {
 
-    private ActivityMain2Binding mBinding;
+    private ActivityMainBinding mBinding;
 
     private MainFragment mainFragment;
     private BookmarksFragment bookmarksFragment;
-
-    public static final String ACTION_BOOKMARKS = "com.hut.zero.bookmarks";
 
     //因为在切换主题时会recreate,如果不添加一个判断标志，每次切换主题后都直接显示mainFragment,即使是在显示BookmarkFragment时切换主题
     private int currentFragment;
@@ -44,7 +42,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
-        mBinding= DataBindingUtil.setContentView(this,R.layout.activity_main2);
+        mBinding= DataBindingUtil.setContentView(this,R.layout.activity_main);
 
         init();
 
